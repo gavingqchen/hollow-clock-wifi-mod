@@ -9,7 +9,7 @@
 
 void setup()
 {
-
+    Serial.begin(115200);
     ESP.wdtEnable(30000); // 使能软件看门狗的触发间隔 30s.
     Serial.println("Initialize Timer...");
     TimerInitialize();
@@ -32,7 +32,6 @@ void setup()
 }
 void loop()
 {
-        Serial.println("start loop.");
 
     if(runStatus == Startup)
     {
