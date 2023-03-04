@@ -27,7 +27,6 @@ void setup()
 
     Serial.println("Initialize Wifi..");
     InitializeWifi();
-
 }
 void loop()
 {

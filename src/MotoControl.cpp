@@ -5,8 +5,8 @@
 int port[4] = {D8, D7, D6, D5};
 // wait for a single step of stepper
 int delaytime = 2;
-uint32_t currHour = 0;
-uint32_t currMinute = 0;
+uint32_t currHourMoto = 0;
+uint32_t currMinuteMoto = 0;
 // sequence of stepper motor control
 int seq[8][4] = {
     {LOW, HIGH, HIGH, LOW},
@@ -25,8 +25,8 @@ void MotoInitialize()
     pinMode(port[2], OUTPUT);
     pinMode(port[3], OUTPUT);
 
-    ESP.rtcUserMemoryRead(RTCaddr_hour, &currHour, sizeof(currHour));
-    ESP.rtcUserMemoryRead(RTCaddr_minute, &currMinute, sizeof(currMinute));
+    ESP.rtcUserMemoryRead(RTCaddr_hour, &currHourMoto, sizeof(currHourMoto));
+    ESP.rtcUserMemoryRead(RTCaddr_minute, &currMinuteMoto, sizeof(currMinuteMoto));
     Rotate(-20); // for approach run
     Rotate(20);  // approach run without heavy load
 }
@@ -36,15 +36,15 @@ void CheckTimeAndRotateMoto()
     uint32_t minute, hour;
     ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
     ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
-    if (!(hour == currHour && minute == currMinute))
+    if (!(hour == currHourMoto && minute == currMinuteMoto))
     {
         if (hour == 0)
             hour = 24;
-        if (currHour == 0)
-            currHour = 24;
-        if (hour * 60 + minute > currHour * 60 + currMinute)
+        if (currHourMoto == 0)
+            currHourMoto = 24;
+        if (hour * 60 + minute > currHourMoto * 60 + currMinuteMoto)
         {
-            uint32_t minuteDiff = hour * 60 + minute - (currHour * 60 + minute);
+            uint32_t minuteDiff = hour * 60 + minute - (currHourMoto * 60 + currMinuteMoto);
             Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
 
             if (hour == 24)
@@ -53,8 +53,8 @@ void CheckTimeAndRotateMoto()
             Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
             Serial.println("Current Time: " + String(hour) + ":" + String(minute));
 #endif
-            currHour = hour;
-            currMinute = minute;
+            currHourMoto = hour;
+            currMinuteMoto = minute;
         }
         else
         {

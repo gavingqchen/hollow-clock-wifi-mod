@@ -44,6 +44,10 @@ void TimerInitialize()
     }
     else
         Serial.println(F("Can't set ITimer. Select another freq. or timer"));
+
+    ESP.rtcUserMemoryWrite(RTCaddr_hour, &RTC_hour, sizeof(RTC_hour));
+    ESP.rtcUserMemoryWrite(RTCaddr_minute, &RTC_minute, sizeof(RTC_minute));
+    ESP.rtcUserMemoryWrite(RTCaddr_seconds, &RTC_seconds, sizeof(RTC_seconds));
 }
 
 void IRAM_ATTR TimerHandler()

@@ -23,10 +23,12 @@ void InitializeWebServer()
 
 void StopWebServer()
 {
-    if(isServerOn)
+    if (isServerOn)
+    {
         server.stop();
-    isServerOn = false;
-    Serial.println("Web Server Stopped");
+        isServerOn = false;
+        Serial.println("Web Server Stopped");
+    }
 }
 
 void ScanWifiHandler() // 扫描周边wifi
