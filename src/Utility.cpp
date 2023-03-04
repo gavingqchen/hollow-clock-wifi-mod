@@ -162,10 +162,10 @@ void TimerInitializeAndSync()
         ISR_Timer.setTimeout(timeoutMs_withOffset, TimeCalOneShotHandler);
 
         previousMin = minuteNtp;
-        runStatus == ClockSyncOk;
+        runStatus = ClockSyncOk;
     }
     else
     {
-        runStatus == ClockSyncFail;
+        runStatus = ClockSyncFail;
     }
 }

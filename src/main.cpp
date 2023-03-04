@@ -11,17 +11,23 @@ void setup()
 {
 
     ESP.wdtEnable(30000); // 使能软件看门狗的触发间隔 30s.
+    Serial.println("Initialize Timer...");
     TimerInitialize();
     ISR_Timer.setInterval(TIMER_INTERVAL_1S * 10, WatchFeedHandler); // start feed watchdog
-    Serial.println("Watch dog ready.");
+
+    Serial.println("Initialize Eeprom...");
     InitializeEeprom();
     timerClockId = ISR_Timer.setInterval(TIMER_INTERVAL_60S + eepUserSet.clockCompMsPerMin, ISR_TimerHandler_60S);
-    MotoInitialize();
-    Serial.println("moto ready.");
 
+    Serial.println("Initialize Moto...");
+    MotoInitialize();
+
+    Serial.println("Initialize File System...");
     InitializeFileSystem();
+
+    Serial.println("Initialize Wifi..");
     InitializeWifi();
-    Serial.println("start loop.");
+    Serial.println("Start Loop Now...");
 
 }
 void loop()
