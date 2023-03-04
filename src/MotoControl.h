@@ -8,6 +8,7 @@
 void MotoInitialize();
 void Rotate(int step);
 void RotateFast(int step);
+void CheckTimeAndRotateMoto();
 
 
 

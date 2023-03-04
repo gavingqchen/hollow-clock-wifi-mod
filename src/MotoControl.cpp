@@ -51,6 +51,10 @@ void CheckTimeAndRotateMoto()
         if(hour == 24) hour = 0;
         ESP.rtcUserMemoryWrite(RTCaddr_hour, &hour, sizeof(hour));
         ESP.rtcUserMemoryWrite(RTCaddr_minute, &minute, sizeof(minute));
+#ifdef DEBUG
+        Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
+        Serial.println("Current Time: " + String(hour) + ":" + String(minute));
+#endif
     }
     else
     {

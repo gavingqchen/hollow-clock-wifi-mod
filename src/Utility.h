@@ -41,6 +41,7 @@ enum RunStatus{
 };
 extern RunStatus runStatus;
 
+extern NTPClient timeClient;
 extern ESP8266_ISR_Timer ISR_Timer;  // declaration of the global variable ISRTimer
 extern uint32_t RTC_minute;       // RTC数据-分钟
 extern uint32_t RTC_hour;         // RTC数据-小时
@@ -56,8 +57,8 @@ extern uint16_t timerClockId;
 void TimerInitialize();
 void IRAM_ATTR TimerHandler();
 void WatchFeedHandler();
-void ClockFreeRunModeHandler();
-
+void ISR_TimerHandler_60S();
+void TimeCalibrationHandler();
 
 
 
