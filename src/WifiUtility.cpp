@@ -76,7 +76,7 @@ void WifiConfiguration()
         WiFi.mode(WIFI_OFF);
         runStatus = FreeRun;
 #ifdef DEBUG
-        Serial.println("WiFi connecting timeout, change to FreeRun mode.");
+        Serial.println("WiFi connecting timeout, change to runStatus: FreeRun .");
 #endif
     }
     if (WiFi.status() == WL_CONNECTED)
@@ -84,7 +84,7 @@ void WifiConfiguration()
         StopWebServer();
         runStatus = WiFiConnected;
 #ifdef DEBUG
-        Serial.println("WiFi connected.");
+        Serial.println("WiFi connected, change to runStatus: WiFiConnected");
 #endif
     }
 }
