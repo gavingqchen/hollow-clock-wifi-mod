@@ -23,9 +23,9 @@ void InitializeWebServer()
 
 void StopWebServer()
 {
-    server.stop();
+    if(isServerOn)
+        server.stop();
     isServerOn = false;
-    ;
     Serial.println("Web Server Stopped");
 }
 
@@ -141,7 +141,7 @@ void WebRootPostHandler()
         // peiwangInitStete = 0; //重置配网初始化
         wifiStatus = Connecting; // 发送连接指令
         // sta_count = 0;
-        Serial.print("Change wifi mode to reconect");
+        Serial.println("Change wifi mode to Connecting.");
     }
 }
 void WebNotFoundHandler()
