@@ -29,6 +29,5 @@ void loop()
         WifiConfiguration();
     }
 
-
     // rotate moto if time change
 }

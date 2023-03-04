@@ -32,7 +32,7 @@ void InitializeWifi()
 void WifiConfiguration()
 {
     uint32_t timeOutMs = WIFI_CONNECT_TIMEOUT_MIN * 60 * 1000; 
-    while (millis() < timeOutMs)
+    if (millis() < timeOutMs)
     {
         // Only run when under NotSet mode, which means on bootup
         if (WiFi.SSID().length() > 0 && wifiStatus == NotSet)
@@ -69,10 +69,15 @@ void WifiConfiguration()
         if (isServerOn)
             server.handleClient();
     }
-    if (WiFi.status() != WL_CONNECTED)
-        runStatus =  WiFiConnected;
     else
-        runStatus =  FreeRun;
+    {
+        // timeout stop wifi and change to freerun mode
+        StopWebServer();
+        WiFi.mode(WIFI_OFF);
+        runStatus = FreeRun;
+    }
+    if (WiFi.status() != WL_CONNECTED)
+        runStatus = WiFiConnected;
 }
 
 bool ConnectingWiFi(bool isAutoConnect)

@@ -33,6 +33,30 @@ void MotoInitialize()
     Rotate(20);  // approach run without heavy load
 }
 
+void CheckTimeAndRotateMoto()
+{
+    uint32_t minute, hour;
+    ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
+    ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
+
+    if (hour == 0)
+        hour = 24;
+    if (currHour == 0)
+        currHour = 24;
+    if (hour * 60 + minute > currHour * 60 + minute)
+    {
+        uint32_t minuteDiff = hour * 60 + minute -(currHour * 60 + minute);
+        Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
+
+        if(hour == 24) hour = 0;
+        ESP.rtcUserMemoryWrite(RTCaddr_hour, &hour, sizeof(hour));
+        ESP.rtcUserMemoryWrite(RTCaddr_minute, &minute, sizeof(minute));
+    }
+    else
+    {
+        // Just wait until need rotate.
+    }
+}
 
 void Rotate(int step) { // original function from shiura
   static int phase = 0;
