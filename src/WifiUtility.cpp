@@ -76,8 +76,11 @@ void WifiConfiguration()
         WiFi.mode(WIFI_OFF);
         runStatus = FreeRun;
     }
-    if (WiFi.status() != WL_CONNECTED)
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        StopWebServer();
         runStatus = WiFiConnected;
+    }
 }
 
 bool ConnectingWiFi(bool isAutoConnect)
