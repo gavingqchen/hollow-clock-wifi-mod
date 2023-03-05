@@ -1,13 +1,13 @@
 # 悬浮时钟 WiFi 同步版
 
 ## 说明
-悬浮时钟WiFi同步版。使用ESP8266进行控制，以取代原作者的Arduino Nano。
-原作者项目地址: [Hollow Clock4](https://www.instructables.com/Hollow-Clock-4/)
-电机控制部分重用了原作者的代码。
-网页登录服务参考和重用了[甘草酸不酸](https://gitee.com/Lichengjiez/weather-ink-screen)墨水屏的代码。
-参考了Github[nikzin96](https://github.com/nikzin96/modified_HollowClock4)WiFi版本代码。
+- 悬浮时钟WiFi同步版。使用ESP8266进行控制，以取代原作者的Arduino Nano。
+- 原作者项目地址: [Hollow Clock4](https://www.instructables.com/Hollow-Clock-4/)
+- 电机控制部分重用了原作者的代码。
+- 网页登录服务参考和重用了[甘草酸不酸](https://gitee.com/Lichengjiez/weather-ink-screen)墨水屏的代码。
+- 参考了[nikzin96](https://github.com/nikzin96/modified_HollowClock4)WiFi版本代码。
 
-重写了网络同步代码，采用ISR Timer进行时间计时。[ESP8266TimerInterrupt]https://github.com/khoih-prog/ESP8266TimerInterrupt
+- 重写了网络同步代码，采用ISR Timer进行时间计时。[ESP8266TimerInterrupt]https://github.com/khoih-prog/ESP8266TimerInterrupt
 
 ## 说明
 1. 默认开启时时钟处于12：00 位置。
@@ -20,7 +20,7 @@
 - VsCode + Platform IO
 
 ## 项目链接
-[Gitee](https://gitee.com/guanqunchen/hollow-clock_-wifi-mod)
-[GitHub](https://gitee.com/guanqunchen/hollow-clock_-wifi-mod)
+- [Gitee](https://gitee.com/guanqunchen/hollow-clock_-wifi-mod)
+- [GitHub](https://gitee.com/guanqunchen/hollow-clock_-wifi-mod)
 
 
