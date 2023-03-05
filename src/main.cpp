@@ -42,7 +42,7 @@ void loop()
     }
     if(isSyncTriggerred)
     {
-
+        TimerSyncWithNtp();
     }
 
     // rotate moto if time change

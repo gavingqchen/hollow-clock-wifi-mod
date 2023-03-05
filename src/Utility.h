@@ -59,6 +59,7 @@ void WatchFeedHandler();
 void ISR_TimerHandler_60S();
 void TimeCalibrationHandler();
 void TimerInitializeAndSync();
+void TimerSyncWithNtp();
 
 
 
