@@ -28,9 +28,9 @@ uint16_t timerClockId;
 uint16_t timerSyncId;
 uint32_t clockSyncFailureCount = 0;
 
-static uint32_t currTime;
-static uint32_t previousTime;
-static int32_t offsetMsPerCalInterval = 0;
+uint32_t currTime;
+uint32_t previousTime;
+int32_t  offsetMsPerCalInterval = 0;
 
 
 void TimerInitialize()
