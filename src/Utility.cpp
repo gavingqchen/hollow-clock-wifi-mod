@@ -78,6 +78,7 @@ void ISR_TimerHandler_60S()
 void TimeCalOneShotHandler()
 {
     uint32_t minute, hour;
+    uint32_t seconds = 0;
     ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
     ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
     currTime = millis();
@@ -91,6 +92,8 @@ void TimeCalOneShotHandler()
     }
     ESP.rtcUserMemoryWrite(RTCaddr_hour, &hour, sizeof(hour));
     ESP.rtcUserMemoryWrite(RTCaddr_minute, &minute, sizeof(minute));
+    // Seconds will be aligned after oneshot handler
+    ESP.rtcUserMemoryWrite(RTCaddr_seconds, &seconds, sizeof(seconds));
 
     timerClockId = ISR_Timer.setInterval(TIMER_INTERVAL_60S + offsetMsPerCalInterval / TIMER_CALI_INTERVAL_MIN, ISR_TimerHandler_60S);
     timerSyncId = ISR_Timer.setInterval(TIMER_CALI_INTERVAL_MIN * 60000 + offsetMsPerCalInterval, TimeCalibrationHandler);
@@ -180,7 +183,7 @@ void TimerInitializeAndSync()
             minuteDiff += 24 * 60;
         if (minuteDiff > 60 * 12)
             minuteDiff -= 12 * 60;
-            
+
 #ifdef DEBUG
         Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
 #endif
