@@ -47,13 +47,13 @@ void CheckTimeAndRotateMoto()
 
         if (minuteDiff > 0)
         {
-            Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
-            currHourMoto = hour;
-            currMinuteMoto = minute;
 #ifdef DEBUG
             Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
             Serial.println("Current Time: " + String(hour) + ":" + String(minute));
 #endif
+            Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
+            currHourMoto = hour;
+            currMinuteMoto = minute;
         }
         else
         {

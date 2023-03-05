@@ -180,6 +180,10 @@ void TimerInitializeAndSync()
             minuteDiff += 24 * 60;
         if (minuteDiff > 60 * 12)
             minuteDiff -= 12 * 60;
+            
+#ifdef DEBUG
+        Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
+#endif
         RotateFast((minuteDiff * STEPS_PER_ROTATION) / 60);
         currHourMoto = hourNtp;
         currMinuteMoto = minuteNtp;
