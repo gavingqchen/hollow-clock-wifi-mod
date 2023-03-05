@@ -2,6 +2,7 @@
 #include "Utility.h"
 #include "EepromUtility.h"
 #include "MotoControl.h"
+#include "WifiUtility.h"
 
 // Init ESP8266 timer 1
 ESP8266Timer ITimer;
@@ -215,6 +216,19 @@ void TimerSyncWithNtp()
     int32_t offsetSeconds;
     uint16_t syncRetryCount = 0;
     bool syncSuccessFlag = false;
+
+    // check WiFi status again
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        if (ConnectingWiFi(true))
+        {
+            clockSyncFailureCount++;
+
+            isSyncTriggerred = false;
+            return;
+        }
+    }
+
     do
     {
         clockPrevious = millis();
