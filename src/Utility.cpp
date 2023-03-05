@@ -223,8 +223,10 @@ void TimerSyncWithNtp()
         if (ConnectingWiFi(true))
         {
             clockSyncFailureCount++;
-
             isSyncTriggerred = false;
+#ifdef DEBUG
+            Serial.print(("WiFi Status Error, skip time sync of this round."));
+#endif
             return;
         }
     }
