@@ -38,24 +38,22 @@ void CheckTimeAndRotateMoto()
     ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
     if (!(hour == currHourMoto && minute == currMinuteMoto))
     {
-        if (hour == 0)
-            hour = 24;
-        if (currHourMoto == 0)
-            currHourMoto = 24;
 
         int32_t minuteDiff = (int32_t)(hour * 60 + minute) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
+        if (minuteDiff < 0)
+            minuteDiff += 24 * 60;
+        if (minuteDiff > 60 * 12)
+            minuteDiff -= 12 * 60;
+
         if (minuteDiff > 0)
         {
             Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
-
-            if (hour == 24)
-                hour = 0;
+            currHourMoto = hour;
+            currMinuteMoto = minute;
 #ifdef DEBUG
             Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
             Serial.println("Current Time: " + String(hour) + ":" + String(minute));
 #endif
-            currHourMoto = hour;
-            currMinuteMoto = minute;
         }
         else
         {
