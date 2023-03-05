@@ -118,10 +118,10 @@ bool ConnectingWiFi(bool isAutoConnect)
         wifiStatus = Connected;
         StopWebServer();
         WiFi.setOutputPower(eepUserSet.outputPower); // 设置发射功率
-        WiFi.setAutoConnect(1);                      // 设置自动连接wifi
+        WiFi.setAutoConnect(true);                      // 设置自动连接wifi
         WiFi.setSleepMode(WIFI_NONE_SLEEP);
         WiFi.config(0, 0, 0, dns1, dns2);
-        WiFi.begin();
+        WiFi.persistent(true);
         Serial.println( "WiFi Connected, SSID: " + WiFi.SSID());
     }
     else
