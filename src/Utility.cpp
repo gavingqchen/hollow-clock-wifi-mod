@@ -220,7 +220,7 @@ void TimerSyncWithNtp()
     // check WiFi status again
     if (WiFi.status() != WL_CONNECTED)
     {
-        if (ConnectingWiFi(true))
+        if (!ConnectingWiFi(true))
         {
             clockSyncFailureCount++;
             isSyncTriggerred = false;
