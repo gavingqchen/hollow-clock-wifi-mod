@@ -36,8 +36,7 @@ enum RunStatus{
     Startup = 0,
     FreeRun = 1,
     WiFiConnected = 2,
-    ClockSyncOk = 3,
-    ClockSyncFail = 4,
+    ClockSyncMode = 3,
 };
 extern RunStatus runStatus;
 
@@ -59,6 +58,7 @@ void IRAM_ATTR TimerHandler();
 void WatchFeedHandler();
 void ISR_TimerHandler_60S();
 void TimeCalibrationHandler();
+void TimerInitializeAndSync();
 
 
 

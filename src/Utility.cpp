@@ -1,7 +1,7 @@
 #include <ESP8266_ISR_Timer.h> //硬件定时器库 https://github.com/khoih-prog/ESP8266TimerInterrupt
 #include "Utility.h"
 #include "EepromUtility.h"
-
+#include "MotoControl.h"
 
 // Init ESP8266 timer 1
 ESP8266Timer ITimer;
@@ -30,7 +30,6 @@ uint32_t clockSyncFailureCount = 0;
 static uint32_t currTime;
 static uint32_t previousTime;
 static int32_t offsetMsPerCalInterval = 0;
-static uint16_t previousMin;
 
 
 void TimerInitialize()
@@ -116,6 +115,7 @@ void TimerInitializeAndSync()
     RTC_ntpTime_cal_status = 0;
     uint32_t clockPrevious = 0, clockAfter = 0, ntpSyncTimeMs = 0;
     uint32_t hourNtp, minuteNtp, secondsNtp;
+    uint32_t minute, hour;
     uint16_t syncRetryCount = 0;
     bool syncSuccessFlag = false;
 
@@ -135,14 +135,19 @@ void TimerInitializeAndSync()
             secondsNtp += ntpSyncTimeMs / 1000;
         if (syncSuccessFlag)
             break;
-    } while (++syncRetryCount <= 10);
+    } while (++syncRetryCount <= 15);
 
     if (syncSuccessFlag)
     {
         ISR_Timer.disable(timerClockId);
         ISR_Timer.deleteTimer(timerClockId);
+
+        ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
+        ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
+
 // Debug info
 #ifdef DEBUG
+        Serial.print(("Current SYS Time:  " + String(hour) + ":" + String(minute) + "\r\n"));
         Serial.print(("Starting NTP Initialize, millis() = "));
         Serial.println(clockPrevious);
         Serial.print(("NTP millis() = :  "));
@@ -165,11 +170,20 @@ void TimerInitializeAndSync()
 #endif
         ISR_Timer.setTimeout(timeoutMs_withOffset, TimeCalOneShotHandler);
 
-        previousMin = minuteNtp;
-        runStatus = ClockSyncOk;
+        runStatus = ClockSyncMode;
+
+        // Rotate moto fast to target.
+        int32_t minuteDiff = (int32_t)(hourNtp * 60 + minuteNtp) - (int32_t)(hour * 60 + minute);
+
+        // 24H vs 12H
+        if (minuteDiff < 0)
+            minuteDiff += 24 * 60;
+        if (minuteDiff > 60 * 12)
+            minuteDiff -= 12 * 60;
+        RotateFast((minuteDiff * STEPS_PER_ROTATION) / 60);
     }
     else
     {
-        runStatus = ClockSyncFail;
+        runStatus = FreeRun;
     }
 }

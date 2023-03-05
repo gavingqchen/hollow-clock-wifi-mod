@@ -36,6 +36,10 @@ void loop()
         // Only do during initializing
         WifiConfiguration();
     }
+    else if(runStatus == WiFiConnected)
+    {
+        TimerInitializeAndSync();
+    }
     if(isSyncTriggerred)
     {
 
