@@ -247,6 +247,7 @@ void TimerSyncWithNtp()
         if (ntpSyncTimeMs >= 1000)
             secondsNtp += ntpSyncTimeMs / 1000;
 
+        CheckTimeAndRotateMoto();   // possible that time just change before timer stoped.
         ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
         ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
         ESP.rtcUserMemoryRead(RTCaddr_seconds, &seconds, sizeof(seconds));
