@@ -2,7 +2,7 @@
 #include "MotoControl.h"
 #include "Utility.h"
 
-int port[4] = {D8, D7, D6, D5};
+int port[4] = {D5, D6, D7, D8};
 // wait for a single step of stepper
 int delaytime = 2;
 uint32_t currHourMoto = 0;
