@@ -132,6 +132,14 @@ void TimerInitializeAndSync()
         hourNtp = timeClient.getHours();
         minuteNtp = timeClient.getMinutes();
         secondsNtp = timeClient.getSeconds();
+
+        // NTP lib seems will return strange value sometimes
+        if (hourNtp > 24 || minuteNtp > 60 || secondsNtp > 60)
+        {
+            syncSuccessFlag = false;
+            continue;
+        }
+
         clockAfter = millis();
         ntpSyncTimeMs = (clockAfter - clockPrevious) / 2;
         if (ntpSyncTimeMs >= 1000)
@@ -216,6 +224,14 @@ void TimerSyncWithNtp()
         hourNtp = timeClient.getHours();
         minuteNtp = timeClient.getMinutes();
         secondsNtp = timeClient.getSeconds();
+
+        // NTP lib seems will return strange value sometimes
+        if (hourNtp > 24 || minuteNtp > 60 || secondsNtp > 60)
+        {
+            syncSuccessFlag = false;
+            continue;
+        }
+        
         clockAfter = millis();
         if (syncSuccessFlag)
             break;

@@ -22,7 +22,7 @@
 #define TIMER_INTERVAL_1H               3600000L
 #define TIMER_INTERVAL_1S               1000L
 #define TIMER_INTERVAL_100MS            100L
-#define TIMER_CALI_INTERVAL_MIN         60L
+#define TIMER_CALI_INTERVAL_MIN         10L
 
 #define RTCaddr_hour                  0                      // RTC数据-地址 小时
 #define RTCaddr_minute                RTCaddr_hour+1           // RTC数据-地址 分钟
