@@ -49,6 +49,8 @@ void CheckTimeAndRotateMoto()
         {
 #ifdef DEBUG
             Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
+            Serial.print(("Current Time, millis() = "));
+            Serial.println(millis());
             Serial.println("Current Time: " + String(hour) + ":" + String(minute));
 #endif
             Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
