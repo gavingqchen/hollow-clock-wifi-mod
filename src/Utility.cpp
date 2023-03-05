@@ -181,6 +181,8 @@ void TimerInitializeAndSync()
         if (minuteDiff > 60 * 12)
             minuteDiff -= 12 * 60;
         RotateFast((minuteDiff * STEPS_PER_ROTATION) / 60);
+        currHourMoto = hourNtp;
+        currMinuteMoto = minuteNtp;
     }
     else
     {
