@@ -117,7 +117,8 @@ void TimerInitializeAndSync()
 {
     RTC_ntp_error_count = 0;
     RTC_ntpTime_cal_status = 0;
-    uint32_t clockPrevious = 0, clockAfter = 0, ntpSyncTimeMs = 0;
+    unsigned long clockPrevious = 0, clockAfter = 0;
+    unsigned long ntpSyncTimeMs = 0, timeAlignPoint = 0;
     uint32_t hourNtp, minuteNtp, secondsNtp;
     uint32_t minute, hour;
     uint16_t syncRetryCount = 0;
@@ -140,11 +141,7 @@ void TimerInitializeAndSync()
             syncSuccessFlag = false;
             continue;
         }
-
         clockAfter = millis();
-        ntpSyncTimeMs = (clockAfter - clockPrevious) / 2;
-        if (ntpSyncTimeMs >= 1000)
-            secondsNtp += ntpSyncTimeMs / 1000;
         if (syncSuccessFlag)
             break;
     } while (++syncRetryCount <= 15);
@@ -156,6 +153,19 @@ void TimerInitializeAndSync()
 
         ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
         ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
+
+        timeAlignPoint = millis(); // here seconds of Sys Time should be 0;
+
+        ntpSyncTimeMs = timeAlignPoint - clockAfter / 2 - clockPrevious / 2;
+        if (ntpSyncTimeMs >= 1000)
+        {
+            secondsNtp += ntpSyncTimeMs / 1000;
+            if (secondsNtp >= 60)
+            {
+                secondsNtp -= 60;
+                ++minuteNtp;
+            }
+        }
 
 // Debug info
 #ifdef DEBUG
