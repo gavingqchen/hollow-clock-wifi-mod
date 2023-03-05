@@ -160,10 +160,17 @@ void TimerInitializeAndSync()
         if (ntpSyncTimeMs >= 1000)
         {
             secondsNtp += ntpSyncTimeMs / 1000;
-            if (secondsNtp >= 60)
+            while (secondsNtp >= 60)
             {
                 secondsNtp -= 60;
-                ++minuteNtp;
+                if(++minuteNtp == 60)
+                {
+                    minuteNtp = 0;
+                    if(++hourNtp == 24)
+                    {
+                        hourNtp = 0;
+                    }
+                }
             }
         }
 
@@ -277,10 +284,17 @@ void TimerSyncWithNtp()
         if (ntpSyncTimeMs >= 1000)
         {
             secondsNtp += ntpSyncTimeMs / 1000;
-            if (secondsNtp >= 60)
+            while (secondsNtp >= 60)
             {
                 secondsNtp -= 60;
-                ++minuteNtp;
+                if(++minuteNtp == 60)
+                {
+                    minuteNtp = 0;
+                    if(++hourNtp == 24)
+                    {
+                        hourNtp = 0;
+                    }
+                }
             }
         }
 
