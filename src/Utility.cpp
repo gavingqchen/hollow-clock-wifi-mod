@@ -180,7 +180,7 @@ void TimerInitializeAndSync()
         Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
         Serial.println(timeoutMs_withOffset);
 #endif
-        ISR_Timer.setTimeout(timeoutMs_withOffset, TimeCalOneShotHandler);
+        ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
 
         runStatus = ClockSyncMode;
 
@@ -315,7 +315,7 @@ void TimerSyncWithNtp()
             Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
             Serial.println(timeoutMs_withOffset);
 #endif
-            ISR_Timer.setTimeout(timeoutMs_withOffset, TimeCalOneShotHandler);
+            ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
         }
         else
         {
@@ -335,7 +335,7 @@ void TimerSyncWithNtp()
             Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
             Serial.println(timeoutMs_withOffset);
 #endif
-            ISR_Timer.setTimeout(timeoutMs_withOffset, TimeCalOneShotHandler);
+            ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
         }
         clockSyncFailureCount = 0;
     }
