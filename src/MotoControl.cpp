@@ -42,9 +42,10 @@ void CheckTimeAndRotateMoto()
             hour = 24;
         if (currHourMoto == 0)
             currHourMoto = 24;
-        if (hour * 60 + minute > currHourMoto * 60 + currMinuteMoto)
+
+        int32_t minuteDiff = (int32_t)(hour * 60 + minute) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
+        if (minuteDiff > 0)
         {
-            uint32_t minuteDiff = hour * 60 + minute - (currHourMoto * 60 + currMinuteMoto);
             Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
 
             if (hour == 24)
