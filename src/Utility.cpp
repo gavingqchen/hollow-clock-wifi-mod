@@ -210,7 +210,8 @@ void TimerInitializeAndSync()
 void TimerSyncWithNtp()
 {
 
-    uint32_t clockPrevious = 0, clockAfter = 0, ntpSyncTimeMs = 0;
+    unsigned long clockPrevious = 0, clockAfter = 0; 
+    unsigned long ntpSyncTimeMs = 0, timeAlignPoint = 0;;
     uint32_t minute, hour, seconds;
     uint32_t hourNtp, minuteNtp, secondsNtp;
     int32_t offsetSeconds;
@@ -259,9 +260,19 @@ void TimerSyncWithNtp()
         ISR_Timer.deleteTimer(timerClockId);
         ISR_Timer.disable(timerSyncId);
         ISR_Timer.deleteTimer(timerSyncId);
-        ntpSyncTimeMs = (clockAfter - clockPrevious) / 2;
+
+        timeAlignPoint = millis(); // here seconds of Sys Time should be 0;
+
+        ntpSyncTimeMs = timeAlignPoint - clockAfter / 2 - clockPrevious / 2;
         if (ntpSyncTimeMs >= 1000)
+        {
             secondsNtp += ntpSyncTimeMs / 1000;
+            if (secondsNtp >= 60)
+            {
+                secondsNtp -= 60;
+                ++minuteNtp;
+            }
+        }
 
         CheckTimeAndRotateMoto();   // possible that time just change before timer stoped.
         ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
