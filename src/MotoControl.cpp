@@ -48,8 +48,7 @@ void CheckTimeAndRotateMoto()
 
     ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
     int32_t minuteDiff = (int32_t)(hour * 60 + minute) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
-    if (minuteDiff < 0)
-        minuteDiff += 24 * 60;
+
     if (minuteDiff > 60 * 12)
         minuteDiff -= 12 * 60;
 
