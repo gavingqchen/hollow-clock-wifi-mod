@@ -50,10 +50,10 @@ void CheckTimeAndRotateMoto()
     int32_t minuteDiff = (int32_t)(hour * 60 + minute) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
 
     // within -1 * TIMER_CALI_INTERVAL_MIN is not possible
-    if (minuteDiff > 60 * 12)
-        minuteDiff -= 12 * 60;
     if (minuteDiff < -1 * TIMER_CALI_INTERVAL_MIN)
         minuteDiff += 24 * 60;
+    if (minuteDiff > 60 * 12)
+        minuteDiff -= 12 * 60;
 
     if (minuteDiff > 0)
     {
