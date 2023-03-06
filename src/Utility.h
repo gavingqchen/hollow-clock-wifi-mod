@@ -1,8 +1,8 @@
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
-#ifndef DEBUG
-#define DEBUG
-#endif
+// #ifndef DEBUG
+// #define DEBUG
+// #endif
 
 #include <NTPClient.h>
 #include <WiFiUdp.h>
@@ -50,7 +50,7 @@ extern uint32_t RTC_wifi_timeout;      // RTC数据-wifi连接超时计数
 extern uint32_t RTC_ntp_error_count;           // RTC数据-ntp同步出错计数
 extern uint32_t RTC_ntpTime_cal_status;   // 获取时间超时 0-无 1-已校准, 2-同步超时 3-wifi连接超时
 extern bool isSyncTriggerred;
-extern uint16_t timerClockId;
+extern int timerClockId;
 
 
 void TimerInitialize();
