@@ -34,33 +34,40 @@ void MotoInitialize()
 void CheckTimeAndRotateMoto()
 {
     uint32_t minute, hour;
-    ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
+
+    // return minutes first to avoid the interrupt happened between two reading.
     ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
-    if (!(hour == currHourMoto && minute == currMinuteMoto))
+    if (minute == currMinuteMoto)
     {
-
-        int32_t minuteDiff = (int32_t)(hour * 60 + minute) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
-        if (minuteDiff < 0)
-            minuteDiff += 24 * 60;
-        if (minuteDiff > 60 * 12)
-            minuteDiff -= 12 * 60;
-
-        if (minuteDiff > 0)
+        ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
+        if (hour == currHourMoto)
         {
+            return;
+        }
+    }
+
+    ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
+    int32_t minuteDiff = (int32_t)(hour * 60 + minute) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
+    if (minuteDiff < 0)
+        minuteDiff += 24 * 60;
+    if (minuteDiff > 60 * 12)
+        minuteDiff -= 12 * 60;
+
+    if (minuteDiff > 0)
+    {
 #ifdef DEBUG
-            Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
-            Serial.print(("Current Time, millis() = "));
-            Serial.println(millis());
-            Serial.println("Current Time: " + String(hour) + ":" + String(minute));
+        Serial.println("Moto need rotate: " + String(minuteDiff) + " minutes");
+        Serial.print(("Current Time, millis() = "));
+        Serial.println(millis());
+        Serial.println("Current Time: " + String(hour) + ":" + String(minute));
 #endif
-            Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
-            currHourMoto = hour;
-            currMinuteMoto = minute;
-        }
-        else
-        {
-            // Just wait until need rotate.
-        }
+        Rotate((minuteDiff * STEPS_PER_ROTATION) / 60);
+        currHourMoto = hour;
+        currMinuteMoto = minute;
+    }
+    else
+    {
+        // Just wait until need rotate.
     }
 }
 

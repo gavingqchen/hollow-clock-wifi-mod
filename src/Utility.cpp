@@ -31,6 +31,7 @@ uint32_t clockSyncFailureCount = 0;
 uint32_t currTime;
 uint32_t previousTime;
 int32_t  offsetMsPerCalInterval = 0;
+unsigned long currSysTimeMs = 0;
 
 
 void TimerInitialize()
@@ -61,6 +62,7 @@ void WatchFeedHandler()
 }
 void ISR_TimerHandler_60S()
 {
+    currSysTimeMs = millis();
     ESP.rtcUserMemoryRead(RTCaddr_hour, &RTC_hour, sizeof(RTC_hour));
     ESP.rtcUserMemoryRead(RTCaddr_minute, &RTC_minute, sizeof(RTC_minute));
 
@@ -118,7 +120,6 @@ void TimerInitializeAndSync()
     RTC_ntp_error_count = 0;
     RTC_ntpTime_cal_status = 0;
     unsigned long clockPrevious = 0, clockAfter = 0;
-    unsigned long ntpSyncTimeMs = 0, timeAlignPoint = 0;
     uint32_t hourNtp, minuteNtp, secondsNtp;
     uint32_t minute, hour;
     uint16_t syncRetryCount = 0;
@@ -154,26 +155,6 @@ void TimerInitializeAndSync()
         ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
         ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
 
-        timeAlignPoint = millis(); // here seconds of Sys Time should be 0;
-
-        ntpSyncTimeMs = timeAlignPoint - clockAfter / 2 - clockPrevious / 2;
-        if (ntpSyncTimeMs >= 1000)
-        {
-            secondsNtp += ntpSyncTimeMs / 1000;
-            while (secondsNtp >= 60)
-            {
-                secondsNtp -= 60;
-                if(++minuteNtp == 60)
-                {
-                    minuteNtp = 0;
-                    if(++hourNtp == 24)
-                    {
-                        hourNtp = 0;
-                    }
-                }
-            }
-        }
-
 // Debug info
 #ifdef DEBUG
         Serial.print(("Current SYS Time:  " + String(hour) + ":" + String(minute) + "\r\n"));
@@ -202,7 +183,7 @@ void TimerInitializeAndSync()
         runStatus = ClockSyncMode;
 
         // Rotate moto fast to target.
-        int32_t minuteDiff = (int32_t)(hourNtp * 60 + minuteNtp) - (int32_t)(hour * 60 + minute);
+        int32_t minuteDiff = (int32_t)(hourNtp * 60 + minuteNtp) - (int32_t)(currHourMoto * 60 + currMinuteMoto);
 
         // 24H vs 12H
         if (minuteDiff < 0)
@@ -228,10 +209,10 @@ void TimerSyncWithNtp()
 {
 
     unsigned long clockPrevious = 0, clockAfter = 0; 
-    unsigned long ntpSyncTimeMs = 0, timeAlignPoint = 0;;
+    unsigned long ntpSyncTimeMs = 0;
     uint32_t minute, hour, seconds;
     uint32_t hourNtp, minuteNtp, secondsNtp;
-    int32_t offsetSeconds;
+    int32_t offsetSeconds, alignPointDiff;
     uint16_t syncRetryCount = 0;
     bool syncSuccessFlag = false;
 
@@ -278,24 +259,18 @@ void TimerSyncWithNtp()
         ISR_Timer.disable(timerSyncId);
         ISR_Timer.deleteTimer(timerSyncId);
 
-        timeAlignPoint = millis(); // here seconds of Sys Time should be 0;
-
-        ntpSyncTimeMs = timeAlignPoint - clockAfter / 2 - clockPrevious / 2;
-        if (ntpSyncTimeMs >= 1000)
+        // Calc difference caused by different point
+        ntpSyncTimeMs = clockAfter / 2 + clockPrevious / 2;
+        if(ntpSyncTimeMs > currSysTimeMs)
         {
-            secondsNtp += ntpSyncTimeMs / 1000;
-            while (secondsNtp >= 60)
-            {
-                secondsNtp -= 60;
-                if(++minuteNtp == 60)
-                {
-                    minuteNtp = 0;
-                    if(++hourNtp == 24)
-                    {
-                        hourNtp = 0;
-                    }
-                }
-            }
+            alignPointDiff = ((ntpSyncTimeMs - currSysTimeMs) / 1000);
+        }
+        else if(currSysTimeMs > ntpSyncTimeMs)
+        {
+            alignPointDiff = -1 * ((currSysTimeMs - ntpSyncTimeMs) / 1000);
+        }
+        else{
+            alignPointDiff = 0;
         }
 
         CheckTimeAndRotateMoto();   // possible that time just change before timer stoped.
@@ -306,7 +281,7 @@ void TimerSyncWithNtp()
         // Here NPT and Timer should be aligned, calculate offset.
         uint32_t ntpTime = hourNtp * 3600 + minuteNtp * 60 + secondsNtp;
         uint32_t time = hour * 3600 + minute * 60 + seconds;
-        offsetSeconds = (int32_t)time - (int32_t)ntpTime;
+        offsetSeconds = (int32_t)time - (int32_t)ntpTime + alignPointDiff;
 
         // Considering 00:00, change fast/slow logic
         int32_t halfDayInSeconds = 12 * 60 * 60;
@@ -334,44 +309,20 @@ void TimerSyncWithNtp()
         Serial.print(("NTP TIme:  " + String(hourNtp) + ":" + String(minuteNtp) + ":" + String(secondsNtp) + "\r\n"));
 #endif
         // End Debug
+        ESP.rtcUserMemoryWrite(RTCaddr_hour, &hourNtp, sizeof(hourNtp));
+        ESP.rtcUserMemoryWrite(RTCaddr_minute, &minuteNtp, sizeof(minuteNtp));
+        ESP.rtcUserMemoryWrite(RTCaddr_seconds, &secondsNtp, sizeof(secondsNtp));
 
-        if (offsetSeconds <= 0)
-        {
-            // run too slow, directly write
-            ESP.rtcUserMemoryWrite(RTCaddr_hour, &hourNtp, sizeof(hourNtp));
-            ESP.rtcUserMemoryWrite(RTCaddr_minute, &minuteNtp, sizeof(minuteNtp));
-            ESP.rtcUserMemoryWrite(RTCaddr_seconds, &secondsNtp, sizeof(secondsNtp));
-
-            int32_t timeoutMs_noOffset = TIMER_INTERVAL_60S - secondsNtp * 1000;
-            int32_t timeoutMs_withOffset = timeoutMs_noOffset + offsetMsPerCalInterval * (timeoutMs_noOffset) / (60 * 1000 * TIMER_CALI_INTERVAL_MIN);
+        int32_t timeoutMs_noOffset = TIMER_INTERVAL_60S - secondsNtp * 1000;
+        int32_t timeoutMs_withOffset = timeoutMs_noOffset + offsetMsPerCalInterval * (timeoutMs_noOffset) / (60 * 1000 * TIMER_CALI_INTERVAL_MIN);
 #ifdef DEBUG
-            Serial.print("One Shot timeoutMs_noOffset,  millis() =   ");
-            Serial.println(timeoutMs_noOffset);
-            Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
-            Serial.println(timeoutMs_withOffset);
+        Serial.print("One Shot timeoutMs_noOffset,  millis() =   ");
+        Serial.println(timeoutMs_noOffset);
+        Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
+        Serial.println(timeoutMs_withOffset);
 #endif
-            ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
-        }
-        else
-        {
-            // run too fast, need wait more time, need considering minutes difference,
-            int32_t minDiff = offsetSeconds / 60;
+        ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
 
-            // write clock time but wait in in timeout interval
-            ESP.rtcUserMemoryWrite(RTCaddr_hour, &hour, sizeof(hour));
-            ESP.rtcUserMemoryWrite(RTCaddr_minute, &minute, sizeof(minute));
-            ESP.rtcUserMemoryWrite(RTCaddr_seconds, &secondsNtp, sizeof(secondsNtp));
-
-            int32_t timeoutMs_noOffset = TIMER_INTERVAL_60S - secondsNtp * 1000 + (minDiff + 1) * 60000;
-            int32_t timeoutMs_withOffset = timeoutMs_noOffset + offsetMsPerCalInterval * (timeoutMs_noOffset) / (60 * 1000 * TIMER_CALI_INTERVAL_MIN);
-#ifdef DEBUG
-            Serial.print("One Shot timeoutMs_noOffset,  millis() =   ");
-            Serial.println(timeoutMs_noOffset);
-            Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
-            Serial.println(timeoutMs_withOffset);
-#endif
-            ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
-        }
         clockSyncFailureCount = 0;
     }
     else
