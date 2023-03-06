@@ -24,8 +24,7 @@ uint32_t RTC_ntpTime_cal_status;     // 获取时间超时 0-无 1-已校准, 2-
 RunStatus runStatus = Startup;             
 
 bool isSyncTriggerred = false;
-uint16_t timerClockId;
-uint16_t timerSyncId;
+int timerClockId, timerSyncId, timerOneShotId;
 uint32_t clockSyncFailureCount = 0;
 
 uint32_t currTime;
@@ -82,6 +81,11 @@ void TimeCalOneShotHandler()
 {
     uint32_t minute, hour;
     uint32_t seconds = 0;
+    if (timerOneShotId >= 0)
+    {
+        ISR_Timer.disable(timerOneShotId);
+        ISR_Timer.deleteTimer(timerOneShotId);
+    }
     ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
     ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
     currTime = millis();
@@ -178,7 +182,7 @@ void TimerInitializeAndSync()
         Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
         Serial.println(timeoutMs_withOffset);
 #endif
-        ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
+        timerOneShotId = ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
 
         runStatus = ClockSyncMode;
 
@@ -321,7 +325,7 @@ void TimerSyncWithNtp()
         Serial.print("One Shot timeoutMs_withOffset,  millis() =   ");
         Serial.println(timeoutMs_withOffset);
 #endif
-        ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
+        timerOneShotId = ISR_Timer.setTimeout((uint32_t)timeoutMs_withOffset, TimeCalOneShotHandler);
 
         clockSyncFailureCount = 0;
     }
