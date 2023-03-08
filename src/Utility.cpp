@@ -27,18 +27,16 @@ bool isSyncTriggerred = false;
 int timerClockId, timerSyncId, timerOneShotId;
 uint32_t clockSyncFailureCount = 0;
 
-uint32_t currTime;
-uint32_t previousTime;
 int32_t  offsetMsPerCalInterval = 0;
 unsigned long currSysTimeMs = 0;
 
 
 void TimerInitialize()
 {
+    unsigned long currTime;
     if (ITimer.attachInterruptInterval(TIMER_INTERVAL_100MS, TimerHandler))
     {
         currTime = millis();
-        previousTime = currTime;
         Serial.print(F("Starting ITimer OK, millis() = "));
         Serial.println(currTime);
     }
@@ -88,7 +86,7 @@ void TimeCalOneShotHandler()
     }
     ESP.rtcUserMemoryRead(RTCaddr_hour, &hour, sizeof(hour));
     ESP.rtcUserMemoryRead(RTCaddr_minute, &minute, sizeof(minute));
-    currTime = millis();
+
     if (++minute == 60)
     {
         minute = 0;
@@ -106,6 +104,7 @@ void TimeCalOneShotHandler()
     timerSyncId = ISR_Timer.setInterval(TIMER_CALI_INTERVAL_MIN * 60000 + offsetMsPerCalInterval, TimeCalibrationHandler);
 
 #ifdef DEBUG
+    unsigned long currTime = millis();;
     Serial.print(("One Shot Handler called, offsetMsPerMin is:  " + String(offsetMsPerCalInterval / TIMER_CALI_INTERVAL_MIN) + "\r\n"));
     Serial.print(("TimeCalOneShotHandler, millis() = "));
     Serial.println(currTime);
